@@ -1,4 +1,4 @@
-# 💸 Budget Flow Tracker
+# 💸 Portal Budget
 
 A sleek, intuitive, and modern web application to track personal finances, daily spending patterns, and shared expenses. Built using pure HTML, CSS, JavaScript, and powered by Firebase Firestore for real-time, cross-device synchronization.
 
@@ -25,5 +25,5 @@ To run this project locally, you will need to configure your own Firebase projec
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/budget-tracker.git
-   cd budget-tracker
+   git clone https://github.com/NotRemit/Portal-Budget.git
+   cd Portal-Budget
