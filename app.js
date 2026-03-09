@@ -1,7 +1,8 @@
 /**
  * app.js - Simplified Budget Flow without Auth
  */
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
     collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc,
     serverTimestamp, setDoc, getDoc, updateDoc, getDocs, writeBatch
@@ -46,6 +47,16 @@ let initialBalance = 0;
 let savingsBalance = 0;
 let dailySpent = 0;
 let editTxId = null;
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        init();
+    } else {
+        window.location.replace('login.html');
+    }
+});
 
 // Initialize
 function init() {
@@ -113,7 +124,7 @@ function setupEventListeners() {
 
     UI.deleteTxBtn.addEventListener('click', async () => {
         if (editTxId && confirm("Delete this transaction?")) {
-            await deleteDoc(doc(db, 'transactions', editTxId));
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'transactions', editTxId));
             UI.modal.classList.remove('active');
         }
     });
@@ -121,7 +132,7 @@ function setupEventListeners() {
     UI.saveBudgetBtn.addEventListener('click', async () => {
         const val = parseFloat(UI.budgetInput.value);
         if (val >= 0) {
-            await setDoc(doc(db, 'settings', 'budget'), { amount: val });
+            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'budget'), { amount: val });
             UI.settingsModal.classList.remove('active');
         }
     });
@@ -129,7 +140,7 @@ function setupEventListeners() {
     UI.saveInitialBalanceBtn.addEventListener('click', async () => {
         const val = parseFloat(UI.initialBalanceInput.value);
         if (!isNaN(val)) {
-            await setDoc(doc(db, 'settings', 'initialBalance'), { amount: val });
+            await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'initialBalance'), { amount: val });
             UI.settingsModal.classList.remove('active');
         }
     });
@@ -143,7 +154,7 @@ async function checkMonthReset() {
         const currentMonthId = `${now.getFullYear()}-${now.getMonth() + 1}`;
         UI.monthDisplay.textContent = now.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
 
-        const settingsRef = doc(db, 'settings', 'lastActiveMonth');
+        const settingsRef = doc(db, 'users', currentUser.uid, 'settings', 'lastActiveMonth');
         const snap = await getDoc(settingsRef);
 
         if (!snap.exists() || snap.data().monthId !== currentMonthId) {
@@ -155,24 +166,24 @@ async function checkMonthReset() {
 }
 
 async function performMonthReset(newMonthId) {
-    const transactionsRef = collection(db, 'transactions');
+    const transactionsRef = collection(db, 'users', currentUser.uid, 'transactions');
     const snap = await getDocs(transactionsRef);
 
     if (snap.size > 0) {
         const batch = writeBatch(db);
         snap.forEach((d) => {
-            batch.set(doc(db, 'history', d.id), d.data());
+            batch.set(doc(db, 'users', currentUser.uid, 'history', d.id), d.data());
             batch.delete(d.ref);
         });
         await batch.commit();
     }
 
-    await setDoc(doc(db, 'settings', 'lastActiveMonth'), { monthId: newMonthId });
+    await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'lastActiveMonth'), { monthId: newMonthId });
 }
 
 async function loadHistory() {
     UI.historyList.innerHTML = '<div class="empty-state"><p>Loading...</p></div>';
-    const snap = await getDocs(query(collection(db, 'history'), orderBy('createdAt', 'desc')));
+    const snap = await getDocs(query(collection(db, 'users', currentUser.uid, 'history'), orderBy('createdAt', 'desc')));
 
     if (snap.size === 0) {
         UI.historyList.innerHTML = `<div class="empty-state"><i data-lucide="database"></i><p>No past transactions</p></div>`;
@@ -203,7 +214,7 @@ async function checkDayReset() {
     try {
         const now = new Date();
         const todayStr = now.toLocaleDateString('en-CA');
-        const savingsRef = doc(db, 'settings', 'savings');
+        const savingsRef = doc(db, 'users', currentUser.uid, 'settings', 'savings');
         const snap = await getDoc(savingsRef);
 
         if (!snap.exists()) {
@@ -236,28 +247,28 @@ async function checkDayReset() {
 function listenToData() {
     try {
         // Listen for Transactions
-        const q = query(collection(db, 'transactions'), orderBy('createdAt', 'desc'));
+        const q = query(collection(db, 'users', currentUser.uid, 'transactions'), orderBy('createdAt', 'desc'));
         onSnapshot(q, (snap) => {
             transactions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             updateUI();
         }, (err) => console.error("Transactions listener error:", err));
 
         // Listen for Budget
-        onSnapshot(doc(db, 'settings', 'budget'), (snap) => {
+        onSnapshot(doc(db, 'users', currentUser.uid, 'settings', 'budget'), (snap) => {
             monthlyBudget = snap.exists() ? snap.data().amount : 0;
             UI.budgetInput.value = monthlyBudget;
             updateUI();
         }, (err) => console.error("Budget listener error:", err));
 
         // Listen for Initial Balance
-        onSnapshot(doc(db, 'settings', 'initialBalance'), (snap) => {
+        onSnapshot(doc(db, 'users', currentUser.uid, 'settings', 'initialBalance'), (snap) => {
             initialBalance = snap.exists() ? snap.data().amount : 0;
             UI.initialBalanceInput.value = initialBalance;
             updateUI();
         }, (err) => console.error("Initial balance listener error:", err));
 
         // Listen for Savings
-        onSnapshot(doc(db, 'settings', 'savings'), (snap) => {
+        onSnapshot(doc(db, 'users', currentUser.uid, 'settings', 'savings'), (snap) => {
             if (snap.exists()) {
                 savingsBalance = snap.data().balance || 0;
                 dailySpent = snap.data().dailySpent || 0;
@@ -288,19 +299,19 @@ async function handleAddTransaction(e) {
     };
 
     if (editTxId) {
-        await updateDoc(doc(db, 'transactions', editTxId), txData);
+        await updateDoc(doc(db, 'users', currentUser.uid, 'transactions', editTxId), txData);
     } else {
         txData.date = new Date().toLocaleDateString('en-IN');
         txData.createdAt = serverTimestamp();
 
         if (type === 'expense') {
             if (source === 'savings') {
-                await updateDoc(doc(db, 'settings', 'savings'), { balance: Math.max(0, savingsBalance - amount) });
+                await updateDoc(doc(db, 'users', currentUser.uid, 'settings', 'savings'), { balance: Math.max(0, savingsBalance - amount) });
             } else {
-                await updateDoc(doc(db, 'settings', 'savings'), { dailySpent: dailySpent + amount });
+                await updateDoc(doc(db, 'users', currentUser.uid, 'settings', 'savings'), { dailySpent: dailySpent + amount });
             }
         }
-        await addDoc(collection(db, 'transactions'), txData);
+        await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
     }
 
     UI.form.reset();
@@ -453,4 +464,4 @@ function updateCategoryChart() {
     catChart.update();
 }
 
-window.addEventListener('load', init);
+// window.addEventListener('load', init); handled by auth state

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login | Budget Flow</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="theme-color" content="#0f172a">
+    <style>
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .login-header p {
+            color: var(--text-secondary);
+        }
+
+        .error-msg {
+            color: var(--accent-red);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .toggle-mode {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .toggle-mode span {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card glass-container animate-slide-up">
+            <div class="login-header">
+                <div style="display:flex; justify-content:center; margin-bottom: 15px;">
+                    <div
+                        style="width:60px; height:60px; border-radius:15px; background:var(--gradient-primary); display:flex; align-items:center; justify-content:center;">
+                        <i data-lucide="wallet" style="color:white; width:30px; height:30px;"></i>
+                    </div>
+                </div>
+                <h1 id="form-title">Welcome Back</h1>
+                <p id="form-subtitle">Enter your details to access your budget.</p>
+            </div>
+            <div class="error-msg" id="error-msg"></div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="submit-btn gradient-bg" id="action-btn">Log In</button>
+            </form>
+            <div class="toggle-mode" id="toggle-mode">
+                Don't have an account? <span>Sign Up</span>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="login.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>

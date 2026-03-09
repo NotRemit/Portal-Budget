@@ -1,4 +1,5 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import {
     collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc,
     serverTimestamp, updateDoc
@@ -14,6 +15,16 @@ const UI = {
 };
 
 let debts = [];
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        init();
+    } else {
+        window.location.replace('login.html');
+    }
+});
 
 function init() {
     setupEventListeners();
@@ -42,7 +53,7 @@ function setupEventListeners() {
             createdAt: serverTimestamp()
         };
 
-        await addDoc(collection(db, 'ledger'), newDebt);
+        await addDoc(collection(db, 'users', currentUser.uid, 'ledger'), newDebt);
         UI.form.reset();
         UI.modal.classList.remove('active');
     });
@@ -50,7 +61,7 @@ function setupEventListeners() {
 
 function listenToData() {
     try {
-        const q = query(collection(db, 'ledger'), orderBy('createdAt', 'desc'));
+        const q = query(collection(db, 'users', currentUser.uid, 'ledger'), orderBy('createdAt', 'desc'));
         onSnapshot(q, (snap) => {
             debts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             updateUI();
@@ -105,11 +116,11 @@ window.settleDebt = async (id) => {
             date: new Date().toLocaleDateString('en-IN'),
             createdAt: serverTimestamp()
         };
-        await addDoc(collection(db, 'transactions'), txData);
+        await addDoc(collection(db, 'users', currentUser.uid, 'transactions'), txData);
 
         // Remove from ledger
-        await deleteDoc(doc(db, 'ledger', id));
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'ledger', id));
     }
 };
 
-window.addEventListener('load', init);
+// window.addEventListener('load', init); handled by auth state

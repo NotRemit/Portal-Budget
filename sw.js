@@ -1,9 +1,11 @@
-const CACHE_NAME = 'budget-flow-v1';
+const CACHE_NAME = 'budget-flow-v3';
 const ASSETS = [
     './',
+    './login.html',
     './index.html',
     './ledger.html',
     './style.css',
+    './login.js',
     './app.js',
     './ledger.js',
     './firebase-config.js',
@@ -13,9 +15,24 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS);
+        })
+    );
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((name) => {
+                    if (name !== CACHE_NAME) {
+                        return caches.delete(name);
+                    }
+                })
+            );
         })
     );
 });
