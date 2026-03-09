@@ -1,6 +1,7 @@
-const CACHE_NAME = 'budget-flow-v3';
+const CACHE_NAME = 'budget-flow-v4';
 const ASSETS = [
     './',
+    './icon.png',
     './login.html',
     './index.html',
     './ledger.html',
