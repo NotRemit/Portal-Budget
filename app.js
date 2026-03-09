@@ -27,7 +27,6 @@ const UI = {
     spentAmount: document.getElementById('spent-amount'),
     budgetPercent: document.getElementById('budget-percentage'),
     monthDisplay: document.getElementById('current-month-display'),
-    resetManualBtn: document.getElementById('reset-month-manual'),
     initialBalanceInput: document.getElementById('initial-balance'),
     saveInitialBalanceBtn: document.getElementById('save-initial-balance'),
     historyModal: document.getElementById('history-modal'),
@@ -136,11 +135,6 @@ function setupEventListeners() {
     });
 
     UI.form.addEventListener('submit', handleAddTransaction);
-    UI.resetManualBtn.addEventListener('click', async () => {
-        if (confirm("Developer Tool: Force Reset Month?")) {
-            await performMonthReset("FORCED_DEBUG");
-        }
-    });
 }
 
 async function checkMonthReset() {
