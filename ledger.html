@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Budget Flow | Shared Ledger</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="theme-color" content="#0f172a">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="glass-container">
+            <div class="header-content">
+                <div class="user-info">
+                    <span class="greeting">Shared Ledgers</span>
+                    <h1 class="username">Who Owes Me?</h1>
+                </div>
+                <div class="header-actions" style="display: flex; gap: 10px;">
+                    <a href="index.html" class="settings-btn" style="color: white; text-decoration: none;">
+                        <i data-lucide="arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <section class="balance-section">
+            <div class="balance-card glass-container gradient-bg"
+                style="background: linear-gradient(135deg, #f59e0b, #ef4444);">
+                <p class="label">Total Pending (Owed to Me)</p>
+                <h2 class="total-balance" id="total-owed">₹0.00</h2>
+            </div>
+        </section>
+
+        <section class="transactions-section">
+            <div class="section-header">
+                <h3>Active Debts</h3>
+            </div>
+            <div id="ledger-list" class="transaction-list">
+                <div class="empty-state">
+                    <i data-lucide="check-circle"></i>
+                    <p>Everyone is settled up!</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="fab-container">
+            <div class="action-button" style="background: #f59e0b" id="add-ledger-btn">
+                <i data-lucide="user-plus"></i>
+            </div>
+        </div>
+
+        <!-- Add Ledger Modal -->
+        <div id="ledger-modal" class="modal">
+            <div class="modal-content glass-container animate-slide-up">
+                <div class="modal-header">
+                    <h3>Add Debt</h3>
+                    <span class="close-modal" style="cursor: pointer;"><i data-lucide="x"></i></span>
+                </div>
+                <form id="ledger-form">
+                    <div class="input-group">
+                        <label for="person">Friend's Name</label>
+                        <input type="text" id="person" placeholder="eg. Rahul" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" placeholder="0.00" required step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label for="description">What is this for?</label>
+                        <input type="text" id="description" placeholder="Pizza, Uber, etc." required>
+                    </div>
+                    <button type="submit" class="submit-btn gradient-bg"
+                        style="background: linear-gradient(135deg, #f59e0b, #ef4444);">Save Debt</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="ledger.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js');
+            }
+        });
+    </script>
+</body>
+
+</html>

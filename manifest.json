@@ -1,0 +1,24 @@
+{
+  "name": "Budget Flow",
+  "short_name": "BudgetFlow",
+  "description": "Modern budget and expenditure tracker.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0c111d",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2489/2489756.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
