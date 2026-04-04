@@ -170,12 +170,23 @@ async function performMonthReset(newMonthId) {
     const snap = await getDocs(transactionsRef);
 
     if (snap.size > 0) {
+        let netChange = 0;
         const batch = writeBatch(db);
         snap.forEach((d) => {
-            batch.set(doc(db, 'users', currentUser.uid, 'history', d.id), d.data());
+            const data = d.data();
+            netChange += data.amount || 0;
+            batch.set(doc(db, 'users', currentUser.uid, 'history', d.id), data);
             batch.delete(d.ref);
         });
         await batch.commit();
+
+        const initialBalanceRef = doc(db, 'users', currentUser.uid, 'settings', 'initialBalance');
+        const initialBalanceSnap = await getDoc(initialBalanceRef);
+        let currentInitialBalance = 0;
+        if (initialBalanceSnap.exists()) {
+            currentInitialBalance = initialBalanceSnap.data().amount || 0;
+        }
+        await setDoc(initialBalanceRef, { amount: currentInitialBalance + netChange });
     }
 
     await setDoc(doc(db, 'users', currentUser.uid, 'settings', 'lastActiveMonth'), { monthId: newMonthId });
